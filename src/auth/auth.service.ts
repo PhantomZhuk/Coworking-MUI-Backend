@@ -42,4 +42,8 @@ export class AuthService {
         this.logger.log(`User logged in successfully: ${email}`);
         return user;
     }
+
+    async findUserByEmail(email: string) {
+        return this.userModel.findOne({ email });
+    }
 }

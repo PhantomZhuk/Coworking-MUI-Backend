@@ -5,6 +5,7 @@ import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import * as jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
+import { JwtPayload } from 'jsonwebtoken';
 
 @Controller('auth')
 export class AuthController {
@@ -82,6 +83,28 @@ export class AuthController {
       return res.status(200).json({ message: 'Access token refreshed successfully' });
     } catch (error) {
       return res.status(401).json({ message: 'Invalid refresh token' });
+    }
+  }
+
+  @ApiOperation({ summary: 'Verify a token' })  
+  @ApiResponse({ status: 200, description: 'Token verified successfully' })
+  @ApiResponse({ status: 401, description: 'Invalid token' })
+  @Get('verify')
+  async verifyToken(@Req() req: Request, @Res() res: Response) {
+    const accessToken = req.cookies['accessToken'];
+    if (!accessToken) {
+      return res.status(401).json({ message: 'Invalid access token' });
+    }
+    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET_KEY!);
+    
+    if (typeof decoded === 'object' && 'email' in decoded) {
+      const user = await this.authService.findUserByEmail(decoded.email as string);
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid token' });
+      }
+      return res.status(200).json({ message: 'Token verified successfully' });
+    } else {
+      return res.status(401).json({ message: 'Invalid token' });
     }
   }
 }
