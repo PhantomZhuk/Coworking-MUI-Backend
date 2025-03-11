@@ -15,14 +15,14 @@ export class AuthService {
     ) {}
 
     async register(registerDto: RegisterDto) {
-        const { email, password, name, phoneNumber } = registerDto;
+        const { email, password, username, phoneNumber } = registerDto;
         const existingUser = await this.userModel.findOne({ email });
         if (existingUser) {
             this.logger.warn(`Registration attempt with existing email: ${email}`);
             throw new ConflictException('User already exists');
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await this.userModel.create({ email, password: hashedPassword, name, phoneNumber });
+        const user = await this.userModel.create({ email, password: hashedPassword, username, phoneNumber });
         this.logger.log(`User registered successfully: ${email}`);
         return user;
     }

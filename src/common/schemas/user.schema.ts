@@ -10,10 +10,10 @@ export class User extends Document {
     password: string;
 
     @Prop({ required: true })
-    name: string;
+    username: string;
 
-    @Prop({ required: true })
-    role: string;
+    @Prop({ required: true, default: false })
+    isAdmin: boolean;
 
     @Prop({ required: true, default: Date.now })
     createdAt: Date;

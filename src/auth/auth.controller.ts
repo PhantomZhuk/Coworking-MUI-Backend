@@ -5,7 +5,6 @@ import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import * as jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
-import { JwtPayload } from 'jsonwebtoken';
 
 @Controller('auth')
 export class AuthController {
