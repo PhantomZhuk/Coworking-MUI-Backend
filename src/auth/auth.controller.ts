@@ -94,16 +94,28 @@ export class AuthController {
     if (!accessToken) {
       return res.status(401).json({ message: 'Invalid access token' });
     }
-    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET_KEY!);
-    
-    if (typeof decoded === 'object' && 'email' in decoded) {
+
+    try {
+      const decoded = jwt.verify(accessToken, process.env.JWT_SECRET_KEY!);
+
+      if (typeof decoded !== 'object' || !('email' in decoded)) {
+        return res.status(401).json({ message: 'Invalid token' });
+      }
+
       const user = await this.authService.findUserByEmail(decoded.email as string);
       if (!user) {
         return res.status(401).json({ message: 'Invalid token' });
       }
+
       return res.status(200).json({ message: 'Token verified successfully' });
-    } else {
-      return res.status(401).json({ message: 'Invalid token' });
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        console.error('Token has expired:', error.expiredAt);
+        return res.status(401).json({ message: 'Token has expired' });
+      } else {
+        console.error('Token verification failed:', error);
+        return res.status(401).json({ message: 'Token verification failed' });
+      }
     }
   }
 }
